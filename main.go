@@ -7,18 +7,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-
 	"github.com/gorilla/mux"
 )
-
-
-
-
-type Login struct {
-	Id int `json:"id"`
-	Email string `json:"email"`
-	Password string `json:"password"`
-}
 
 func main() {
 	db := db.NewDatabase()
@@ -26,6 +16,9 @@ func main() {
 
 	authService := services.NewAuth(db)
 	authController := controllers.NewAuthController(*authService)
+
+	categoryService := services.NewCategory(db)
+	categoryController := controllers.NewCategoryController(*categoryService)
 
 	if err != nil {
 		panic(err)
@@ -47,6 +40,9 @@ func main() {
 	// product endpoints
 	// router.HandleFunc("/api/v1/admin", adminProduct).Methods("POST")
 	// router.HandleFunc("/api/v1/allProducts", allProducts).Methods("GET")
+
+	//category endpoints
+	router.HandleFunc("/api/v1/category", categoryController.CreateCategory).Methods("POST")
 
 	foodServer := http.Server{}
 	foodServer.IdleTimeout = 30 * time.Second

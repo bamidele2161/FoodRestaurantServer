@@ -3,7 +3,6 @@ package services
 import (
 	"FoodServer/db"
 	"FoodServer/entities"
-	"database/sql"
 	"errors"
 	"fmt"
 )
@@ -24,20 +23,18 @@ func(a Auth) CreateUser(user entities.User) (entities.User, error) {
 	// rows affected 
 	nRows, err := rows.RowsAffected()
 	if nRows == 0{
-		var userId int
-		 err := a.foodServerDb.Db.QueryRow(`Insert into customers (user_firstname, user_lastname, user_email, user_password, user_phone) values ($1, $2, $3, $4, $5) returning user_id`, user.FirstName, user.LastName, user.Email, user.Password, user.Phone).Scan(&userId)
+		 _, err := a.foodServerDb.Db.Exec(`Insert into customers (user_firstname, user_lastname, user_email, user_password, user_phone) values ($1, $2, $3, $4, $5) returning user_id`, user.FirstName, user.LastName, user.Email, user.Password, user.Phone)
 		if err != nil {
 			fmt.Println(err)
 			return entities.User{}, errors.New("An error occurred while creating user")
 		}
 
 		if err != nil {
-
 			return entities.User{}, errors.New("An error occurred while creating user")
 		}
 		createdUser := entities.User{}
 
-		row := a.foodServerDb.Db.QueryRow("SELECT * FROM customers WHERE user_id = $1", userId) 
+		row := a.foodServerDb.Db.QueryRow("SELECT * FROM customers WHERE user_email = $1", user.Email) 
 		row.Scan(&createdUser.Id, &createdUser.FirstName, &createdUser.LastName, &createdUser.Email, &createdUser.Phone, &createdUser.Password)
 
 		return createdUser, nil
@@ -47,13 +44,14 @@ func(a Auth) CreateUser(user entities.User) (entities.User, error) {
 }
 
 func(a Auth) LoginUser(login entities.Login) (entities.User, error) {
-	rows := a.foodServerDb.Db.QueryRow("SELECT * FROM customers WHERE user_email = $1 or user_phone = $2", login.Email, login.Password);
+	rows := a.foodServerDb.Db.QueryRow("SELECT user_id, user_firstname, user_lastname, user_email, user_phone FROM customers WHERE user_email = $1 and user_password = $2", login.Email, login.Password);
 
-	if rows.Scan() == sql.ErrNoRows{
-			return entities.User{}, errors.New("incorrect email...")
+	loginDetails := entities.User{}
+	err := rows.Scan(&loginDetails.Id, &loginDetails.FirstName, &loginDetails.LastName, &loginDetails.Email, &loginDetails.Phone) 
+	fmt.Println(err)
+	if err != nil{
+		return entities.User{}, errors.New("incorrect email...")
 	} else {
-		loginDetails := entities.User{}
-		rows.Scan(&loginDetails.Id, &loginDetails.FirstName, &loginDetails.LastName, &loginDetails.Phone, &loginDetails.Password)
 		return loginDetails, nil
 	}
 }

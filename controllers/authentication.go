@@ -52,6 +52,7 @@ func(a authController) Login(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(err.Error()))
 			return
 		} 
+		
 		loginJson, err := json.Marshal(loginUser)
 
 		w.WriteHeader(http.StatusOK)

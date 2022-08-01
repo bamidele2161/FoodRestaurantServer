@@ -1,36 +1,61 @@
 package controllers
 
 import (
-	// "encoding/json"
-	// "fmt"
-	// "io/ioutil"
+	"FoodServer/entities"
+	"FoodServer/services"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
-
-func admin(w http.ResponseWriter, r *http.Request) {
-	// fmt.Fprintf(w, "Welcome to my admin page")
-	// if r.Header.Get("content-type") == "application/json" {
-	// 	var singleProduct Product
-	// 	Products := make([]Product, 0)
-	// 	reqBody, _ := ioutil.ReadAll(r.Body) // read all the data received
-	// 	json.Unmarshal(reqBody, &singleProduct) //decode from json to struct
-	// 	Products = append(Products, singleProduct) // append the new user to the list of users
-	// 	json.NewEncoder(w).Encode(singleProduct) //convert struct to json 
-	// 	w.WriteHeader(http.StatusCreated)
-	// 	w.Write([]byte("Product Added Successfully"))
-	// } else {
-	// 	w.WriteHeader(http.StatusUnprocessableEntity)
-	// 	w.Write([]byte("Please supply user details in Json format"))
-	// }
+type productController struct {
+	productService services.Product
 }
 
-func products(w http.ResponseWriter, r *http.Request) {
-	// fmt.Fprintf(w, "Welcome to products")
-	// kv := r.URL.Query() //this returns the key value pair 
-    // for key, value := range kv {
-    //     fmt.Println(key, value)
-    // }
-    // // returns all the courses in JSON
-    // json.NewEncoder(w).Encode(Products)
+func NewProductController(product services.Product) *productController {
+	return &productController{productService: product}
+}
+
+func(p productController) CreateProduct(w http.ResponseWriter, r *http.Request) {
+
+		var singleProduct entities.Product
+
+		reqBody, _ := ioutil.ReadAll(r.Body) // read all the data received
+		err := json.Unmarshal(reqBody, &singleProduct) //decode from json to struct
+		
+		if err != nil {
+			w.Write([]byte("Please supply user details in Json format"))
+		}
+		createdProduct, err := p.productService.CreateProduct(singleProduct)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		productJson, err := json.Marshal(createdProduct)
+		w.WriteHeader(http.StatusCreated)
+		w.Write(productJson)
+
+}
+
+func(p productController) GetProduct(w http.ResponseWriter, r *http.Request) {
+	var product entities.Product
+	list := []entities.Product{}
+	AllProducts, err := p.productService.GetProduct(product)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+	}
+fmt.Println(AllProducts)
+	list = append(list, AllProducts)
+	fmt.Println(list)
+	getProducts, err := json.Marshal(list)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+	}
+	fmt.Println(getProducts)
+	w.WriteHeader(http.StatusOK)
+	w.Write(getProducts)
 }

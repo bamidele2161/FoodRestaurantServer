@@ -41,21 +41,17 @@ func(p productController) CreateProduct(w http.ResponseWriter, r *http.Request) 
 
 func(p productController) GetProduct(w http.ResponseWriter, r *http.Request) {
 	var product entities.Product
-	list := []entities.Product{}
 	AllProducts, err := p.productService.GetProduct(product)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 	}
-fmt.Println(AllProducts)
-	list = append(list, AllProducts)
-	fmt.Println(list)
-	getProducts, err := json.Marshal(list)
+	getProducts, err := json.Marshal(AllProducts)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 	}
-	fmt.Println(getProducts)
+	fmt.Println(AllProducts)
 	w.WriteHeader(http.StatusOK)
 	w.Write(getProducts)
 }

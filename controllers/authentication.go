@@ -33,8 +33,7 @@ func(a authController) Register(w http.ResponseWriter, r *http.Request) {
 		if !emailRegex.MatchString(singleUser.Email) {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Please provide a valid email address"))
-		}
-		if len(singleUser.Password) < 6 {
+		}else if len(singleUser.Password) < 6 {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(" Password must be at least 6 characters"))
 		} else {
@@ -44,7 +43,7 @@ func(a authController) Register(w http.ResponseWriter, r *http.Request) {
 			}
 			singleUser.Password = string(password)
 
-			createdUser, err := a.authservice.CreateUser(singleUser) //passing the struct into the database for processing 
+			createdUser, err := a.authservice.CreateUser(singleUser)  //passing the struct into the database for processing 
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 				w.Write([]byte(err.Error()))

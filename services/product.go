@@ -5,7 +5,6 @@ import (
 	"FoodServer/entities"
 	"errors"
 	"fmt"
-	"log"
 )
 
 type Product struct {
@@ -35,27 +34,32 @@ func(p Product) CreateProduct(product entities.Product) (entities.Product, error
 return entities.Product{}, errors.New("Product already exists")
 }
 
-func(p Product) GetProduct(product entities.Product) (entities.Product, error) {
+func(p Product) GetProduct(product entities.Product) ([]entities.Product, error) {
 	rows, err := p.foodServerDb.Db.Query("SELECT * FROM product")
 	if err != nil {
 		fmt.Println(err)
-		return entities.Product{}, errors.New("An error occurred while retrieving product")
+		return nil, errors.New("An error occurred while retrieving product")
 	}
 	
 	defer rows.Close()
+	lists := []entities.Product{}
 	for rows.Next() {
 		getProduct := entities.Product{}
 		err = rows.Scan(&getProduct.Id, &getProduct.CategoryID, &getProduct.ProductName, &getProduct.ProductPrice, &getProduct.Rating, &getProduct.Description, &getProduct.Image)
 		if err != nil {
 			fmt.Println(err)
-			return entities.Product{}, errors.New("An error occurred while retrieving product")
+			return nil, errors.New("An error occurred while retrieving product")
 		}
-		return getProduct, nil
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+		lists = append(lists, getProduct)
+		fmt.Println(lists)
 
-	return entities.Product{}, errors.New("Error fetching Products")
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	  }
+
+	return lists, nil
 }

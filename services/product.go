@@ -51,7 +51,6 @@ func(p Product) GetProduct(product entities.Product) ([]entities.Product, error)
 			return nil, errors.New("An error occurred while retrieving product")
 		}
 		lists = append(lists, getProduct)
-		fmt.Println(lists)
 
 	}
 	if err := rows.Close(); err != nil {

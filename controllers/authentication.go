@@ -57,8 +57,6 @@ func(a authController) Register(w http.ResponseWriter, r *http.Request) {
 		
 }
 
-
-
 func(a authController) Login(w http.ResponseWriter, r *http.Request) {
 	var userDetail entities.Login
 	reqBody, _ := ioutil.ReadAll(r.Body)

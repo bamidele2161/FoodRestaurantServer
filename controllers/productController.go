@@ -4,7 +4,6 @@ import (
 	"FoodServer/entities"
 	"FoodServer/services"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -51,7 +50,6 @@ func(p productController) GetProduct(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 	}
-	fmt.Println(AllProducts)
 	w.WriteHeader(http.StatusOK)
 	w.Write(getProducts)
 }
